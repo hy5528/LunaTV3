@@ -56,19 +56,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.image_name.outputs.name }}
+          images: ghcr.io/hy5528/lunatv
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-          labels: |
-            org.opencontainers.image.title=${{ github.repository }}
-            org.opencontainers.image.description=katelyatv - A modern streaming platform
-            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.licenses=MIT
+            type=raw,value=${{ steps.version_check.outputs.current_version }},enable=${{ steps.version_check.outputs.version_changed == 'true' }}
+            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
       - name: Build Docker image
         id: build
         uses: docker/build-push-action@v5
